@@ -1,0 +1,77 @@
+---
+import Author from "../components/Author.astro";
+import Canvas from "../components/Canvas.astro";
+import Footer from "../components/Footer.astro";
+import MainNavigation from "../components/MainNavigation.astro";
+import Meta from "../components/Meta.astro";
+import Layout from "../layouts/Layout.astro";
+import TextureCredits from "../components/TextureCredits.astro";
+---
+
+<script>
+   import { useGlslCanvas } from "../webgl/renderer";
+   import vertexShader from "../webgl/shaders/vertex.glsl";
+   import fragmentShader from "../webgl/shaders/earth.fragment.glsl";
+   import { loadTextures } from "../webgl/loaders/texture.loader";
+   import { defaultUniforms } from "../webgl/settings/uniforms";
+   import type { TextureData } from "../webgl/loaders/texture.types";
+   import { setupControls } from "../controls/setup";
+   import { starsTexture } from "../webgl/textures/starsTexture";
+
+   const textures: TextureData[] = [
+      { path: "2k_earth_color.jpeg" },
+      {
+         path: "2k_earth_night.jpeg",
+         options: { minFilter: "nearestMipmapLinear" },
+      },
+      { path: "2k_earth_clouds.jpeg" },
+      { path: "2k_earth_specular.jpeg" },
+      { path: "2k_earth_bump.jpg" },
+      starsTexture,
+   ];
+
+   const [
+      uEarthColor,
+      uEarthNight,
+      uEarthClouds,
+      uEarthSpecular,
+      uEarthBump,
+      uStars,
+   ] = await loadTextures(textures);
+
+   const { canvas, uniforms } = useGlslCanvas({
+      vertex: vertexShader,
+      fragment: fragmentShader,
+      uniforms: {
+         ...defaultUniforms,
+         uCloudsScale: -1,
+         uCloudsSpeed: -1,
+         uAmbientLight: 0.002,
+         uEarthColor,
+         uEarthNight,
+         uEarthClouds,
+         uEarthSpecular,
+         uEarthBump,
+         uStars,
+      },
+   });
+
+   setupControls({ canvas, uniforms }, { planet: { clouds: true } });
+</script>
+
+<Layout title="Earth" description="An artistic view of the Earth from space.">
+   <Canvas />
+   <Footer>
+      <MainNavigation />
+      <Meta>
+         <Author />
+         <TextureCredits>
+            Textures from NASA <a
+               href="https://visibleearth.nasa.gov/collection/1484/blue-marble"
+            >
+               Visible Earth
+            </a>
+         </TextureCredits>
+      </Meta>
+   </Footer>
+</Layout>

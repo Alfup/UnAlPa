@@ -1,0 +1,71 @@
+---
+const routeNames = [
+   "procedural",
+   "earth",
+   "moon",
+   "mercury",
+   "venus",
+   "mars",
+   "jupiter",
+   "ceres",
+   "haumea"
+];
+
+const currentPath = Astro.url.pathname;
+const baseUrl = import.meta.env.PROD ? "/realtime-planet-shader" : "";
+---
+
+<script>
+   window.addEventListener("DOMContentLoaded", () => {
+      document.querySelector('a[aria-current="page"')?.scrollIntoView({
+         block: "center",
+      });
+   });
+</script>
+
+<nav>
+   <ul>
+      {
+         routeNames.map((route) => (
+            <li>
+               <a
+                  aria-current={currentPath.includes(route) ? "page" : null}
+                  href={`${baseUrl}/${route}`}
+               >
+                  {route.charAt(0).toUpperCase() + route.slice(1)}
+               </a>
+            </li>
+         ))
+      }
+   </ul>
+</nav>
+
+<style lang="scss">
+   nav {
+      max-width: 100%;
+      overflow: auto;
+      padding: 1em 2px; // 2px to avoid cropping the focus outline on the links because of overflow auto
+
+      ul {
+         display: flex;
+         gap: 1em;
+         list-style-type: none;
+      }
+
+      a {
+         text-decoration: none;
+         opacity: 0.8;
+      }
+
+      a:is(:hover, [aria-current="page"]) {
+         opacity: 1;
+      }
+
+      a[aria-current="page"]::after {
+         content: "";
+         display: block;
+         height: 3px;
+         background-color: currentColor;
+      }
+   }
+</style>

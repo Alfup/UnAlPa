@@ -1,0 +1,54 @@
+---
+import Author from "../components/Author.astro";
+import Canvas from "../components/Canvas.astro";
+import Footer from "../components/Footer.astro";
+import MainNavigation from "../components/MainNavigation.astro";
+import Meta from "../components/Meta.astro";
+import TextureCredits from "../components/TextureCredits.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<script>
+   import { useGlslCanvas } from "../webgl/renderer";
+   import vertexShader from "../webgl/shaders/vertex.glsl";
+   import fragmentShader from "../webgl/shaders/planet.fragment.glsl";
+   import { loadTextures } from "../webgl/loaders/texture.loader";
+   import { defaultUniforms } from "../webgl/settings/uniforms";
+   import { setupControls } from "../controls/setup";
+   import { starsTexture } from "../webgl/textures/starsTexture";
+
+   const [uPlanetColor, uStars] = await loadTextures([
+      { path: "2k_moon.jpeg" },
+      starsTexture,
+   ]);
+
+   const { canvas, uniforms } = useGlslCanvas({
+      vertex: vertexShader,
+      fragment: fragmentShader,
+      uniforms: {
+         ...defaultUniforms,
+         uAtmosphereColor: [1, 1, 1],
+         uAtmosphereDensity: 0.05,
+         uPlanetColor,
+         uStars,
+      },
+   });
+
+   setupControls({ canvas, uniforms });
+</script>
+
+<Layout title="Moon" description="An artistic view of the Moon from space.">
+   <Canvas />
+   <Footer>
+      <MainNavigation />
+      <Meta>
+         <Author />
+         <TextureCredits>
+            Textures from
+            <a href="https://www.solarsystemscope.com/textures/">
+               Solar System Scope
+            </a>
+         </TextureCredits>
+      </Meta>
+   </Footer>
+</Layout>

@@ -1,0 +1,68 @@
+---
+import Author from "../components/Author.astro";
+import Canvas from "../components/Canvas.astro";
+import Footer from "../components/Footer.astro";
+import MainNavigation from "../components/MainNavigation.astro";
+import Meta from "../components/Meta.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<script>
+   import { useGlslCanvas } from "../webgl/renderer";
+   import vertexShader from "../webgl/shaders/vertex.glsl";
+   import fragmentShader from "../webgl/shaders/procedural.fragment.glsl";
+   import { load3DNoiseTexture } from "../webgl/loaders/noise.loader";
+   import { defaultUniforms } from "../webgl/settings/uniforms";
+   import { Quality } from "../webgl/settings/quality";
+   import { setupControls } from "../controls/setup";
+   import { isPhone } from "../webgl/settings/device";
+
+   await load3DNoiseTexture();
+
+   const defaultQuality = isPhone ? Quality.MEDIUM : Quality.OPTIMAL;
+
+   const { canvas, uniforms, renderer } = useGlslCanvas({
+      vertex: vertexShader,
+      fragment: fragmentShader,
+      uniforms: {
+         ...defaultUniforms,
+         uPlanetPosition: [0, 0, 0],
+         uPlanetRadius: 1.9,
+         uQuality: defaultQuality,
+      },
+   });
+
+   setupControls(
+      { canvas, uniforms, renderer, defaultQuality },
+      {
+         expanded: true,
+         quality: true,
+         planet: {
+            clouds: true,
+            geometry: true,
+            terrain: true,
+         },
+      }
+   );
+</script>
+
+<Layout
+   title="Procedural"
+   description="An artistic view of a procedural planet from space."
+>
+   <Canvas />
+   <Footer>
+      <MainNavigation />
+      <Meta class="meta">
+         <Author />
+      </Meta>
+   </Footer>
+</Layout>
+
+<style>
+   @media (max-width: 599px) {
+      .meta {
+         margin-top: calc(1em + 0.8em);
+      }
+   }
+</style>
